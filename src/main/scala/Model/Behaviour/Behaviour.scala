@@ -2,7 +2,7 @@ package Model.Behaviour
 
 import Model.{Velocity, reactionTime}
 
-trait VehicleBehaviour {
+trait Behaviour {
   def stressed(speed: Velocity): Velocity
 
   def chill(speed: Velocity): Velocity

@@ -3,7 +3,7 @@ package Model
 import Model.Behaviour.ChillBehaviour
 import Model.{Acceleration, Position, Route, Velocity}
 
-object SimulationApp extends App {
+object Simulation extends App {
 
   val agent1 =   Vehicule(Velocity(1, 0),120d, Position(0, 0),Acceleration(0.0,0.0), reactionTime = 0)
   val agent2 =   Vehicule(Velocity(1, 0),150d, Position(10, 0),Acceleration(0.0,0.0), Some(agent1), reactionTime = 0)

@@ -1,7 +1,7 @@
 package Model
 
 case class Acceleration(ax: Double, ay: Double){
-  var accelerationTotal = Math.sqrt(ax*ax + ay*ay)
+  var accelerationTotal:Double = Math.sqrt(ax*ax + ay*ay)
 }
 
 case class Velocity(var dx: Double, var dy: Double) {
