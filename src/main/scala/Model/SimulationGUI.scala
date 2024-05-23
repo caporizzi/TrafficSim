@@ -7,13 +7,33 @@ import com.badlogic.gdx.graphics.Color
 
 class SimulationGUI extends PortableApplication {
 
-  val screenWidth = getWindowWidth.toFloat
-  val screenHeight = getWindowHeight.toFloat
-  println(screenWidth)
 
   override def onInit(): Unit = {
     setTitle("Traffic Simulation")
   }
+
+  def drawCar(g:GdxGraphics , carNumber : Int) : Unit = ??? // TODO = to draw car automatiquement
+
+
+  def dessinerHighWayCircle(g: GdxGraphics) : Unit = {
+       g.drawCircle(250, 250, 150, Color.WHITE)
+       g.drawCircle(250, 250, 225, Color.WHITE)
+  }
+
+  // Create the position and car
+  /*
+  All of car will start the position x = 0(ama hepsinin arasinda  , y = sabit kalacak)
+   */
+  val agent1 = Vehicule(Velocity(1, 0), 120f, Position(45f, 287f), Acceleration(0.0f, 0.0f))
+  val agent2 = Vehicule(Velocity(1, 0), 150f, Position(100f, 287f), Acceleration(0.0f, 0.0f), Some(agent1))
+  val agent3 = Vehicule(Velocity(1, 0), 90f, Position(165, 287f), Acceleration(0.0f, 0.0f), Some(agent2))
+
+
+  // Car dimensions to draw
+  var car_width = 30f
+  var car_height = 40f
+  var distance = 50f // TODO :: After you must check
+  var carColor = Color.WHITE
 
 
   var car1X = 45f
@@ -23,10 +43,7 @@ class SimulationGUI extends PortableApplication {
   override def onGraphicRender(g: GdxGraphics): Unit = {
     g.clear()
 
-    /* Designer Autoroute Circle
-    g.drawCircle(250, 250, 150, Color.WHITE)
-    g.drawCircle(250, 250, 225, Color.WHITE)
-     */
+
 
     // Dessiner straight road
     g.drawLine(0f, 250, 500f, 250, Color.WHITE)
@@ -41,17 +58,15 @@ class SimulationGUI extends PortableApplication {
     }
     g.drawLine(0f, 325, 500f, 325, Color.WHITE)
 
+    // Dessiner vehicule with created class
+    g.drawFilledRectangle(agent1.position.x,agent1.position.y,car_width,car_height,90f,carColor)
+    g.drawFilledRectangle(agent2.position.x,agent2.position.y,car_width,car_height,90f,carColor)
+    g.drawFilledRectangle(agent3.position.x, agent3.position.y,car_width,car_height,90f,carColor)
 
-    // Dessiner vehicule
-    g.drawFilledRectangle(45,290,30f,40f,90f,Color.BLUE)
-    g.drawFilledRectangle(105,290,30f,40f,90f,Color.DARK_GRAY)
-    g.drawFilledRectangle(165,290,30f,40f,90f,Color.GRAY)
-
-    // Move to Car
-
-
-
-
+    // Move cars
+    agent1.position.x += 0.5f
+    agent2.position.x += 0.5f
+    agent3.position.x += 0.5f
 
 
   } // End of the onGraphicsRender method
