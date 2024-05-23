@@ -1,6 +1,4 @@
 package Model
-
-
 import Model.{Acceleration, Position, Velocity}
 
 case class Vehicule(currentvitesse: Velocity,
@@ -8,7 +6,7 @@ case class Vehicule(currentvitesse: Velocity,
                     var position: Position,
                     acceleration:Acceleration,
                     next: Option[Vehicule] = None,
-                    reactionTime: Double) {
+                    var reactionTime: Double) {
 
   override def toString: String = {
     s"Current velocity = ${currentvitesse.vitesseTotal}\n"

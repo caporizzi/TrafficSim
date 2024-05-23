@@ -15,3 +15,7 @@ case class Velocity(var dx: Float, var dy: Float) {
 
 }
 
+case class reactionTime(var imeToReaction : Double) {
+
+}
+

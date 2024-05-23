@@ -5,7 +5,7 @@ import Model.{Velocity, reactionTime}
 class StressedBehaviour extends Behaviour {
   override def stressed(speed: Velocity): Velocity = {
     // Example implementation, adjust speed for stressed behaviour
-    speed.copy(speed.vitesseTotal * 1.2)
+    speed.copy(speed.vitesseTotal * 1.2.toFloat)
   }
 
   override def chill(speed: Velocity): Velocity = speed
