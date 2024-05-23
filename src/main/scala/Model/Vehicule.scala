@@ -1,3 +1,6 @@
+package Model
+
+
 import Model.{Acceleration, Position, Velocity}
 
 case class Vehicule(currentvitesse: Velocity,
