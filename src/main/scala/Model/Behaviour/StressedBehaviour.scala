@@ -14,7 +14,7 @@ class StressedBehaviour extends Behaviour {
 
   override def polite(speed: Velocity): Velocity = speed
 
-  override def jamsHater(speed: Velocity, timeToReact: reactionTime): Velocity = ???
+  override def jamsHater(speed: Velocity, timeToReact: reactionTime): Velocity = speed //edit
 
-  override def jamsLover(speed: Velocity, timeToReact: reactionTime): Velocity = ???
+  override def jamsLover(speed: Velocity, timeToReact: reactionTime): Velocity = speed // edit
 }
