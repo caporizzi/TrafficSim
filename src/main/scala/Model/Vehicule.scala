@@ -7,7 +7,8 @@ case class Vehicule(currentvitesse: Velocity,
                     maxVitesse : Double,
                     var position: Position,
                     acceleration:Acceleration,
-                    next: Option[Vehicule] = None) {
+                    next: Option[Vehicule] = None,
+                    reactionTime: Double) {
 
   override def toString: String = {
     s"Current velocity = ${currentvitesse.vitesseTotal}\n"

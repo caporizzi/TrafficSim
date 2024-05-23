@@ -14,4 +14,7 @@ case class Velocity(var dx: Double, var dy: Double) {
     from.move(dx, dy)
 
 }
+case class reactionTime(var timeToReact: Double) {
+
+}
 
