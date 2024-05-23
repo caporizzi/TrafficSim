@@ -4,7 +4,7 @@ package Model
 import Model.{Acceleration, Position, Velocity}
 
 case class Vehicule(currentvitesse: Velocity,
-                    maxVitesse : Double,
+                    maxVitesse : Float,
                     var position: Position,
                     acceleration:Acceleration,
                     next: Option[Vehicule] = None,

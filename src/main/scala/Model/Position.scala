@@ -1,9 +1,8 @@
 package Model
 
-final case class Position(x : Double, y: Double)  {
- // Parametrik denklem uzerinde calis
-  // Ayrica aracalarin birbirlerine gore hizlanip - yavaslamalari icin uzerinde calis
-  def move(dx: Double, dy : Double) : Position = {
+final case class Position(var x : Float, var y: Float)  {
+
+  def move(dx: Float, dy : Float) : Position = {
     Position(x + dx, y + dy)
   }
 
