@@ -2,11 +2,11 @@ package Model.Behaviour
 import Model.{Velocity, reactionTime, reactionDistance}
 trait OverallBehaviour {
 
-  def stableBehaviour( )
+  def stableBehaviour( ) = ???
 
-  def enteringJams( )
+  def enteringJams( ) = ???
 
-  def exitingJams( timeToReact: Float) : Float
+  def exitingJams( timeToReact: Float) : Float = ???
 
-  def intoJams()
+  def intoJams() = ???
 }
