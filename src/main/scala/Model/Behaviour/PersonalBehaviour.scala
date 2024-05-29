@@ -1,15 +1,11 @@
 package Model.Behaviour
 
-import Model.{Velocity, reactionTime}
+import Model.{Velocity, reactionTime, reactionDistance}
 
-trait Behaviour {
+trait PersonalBehaviour {
   def stressed(speed: Velocity): Velocity
 
   def chill(speed: Velocity): Velocity
-
-  def shortsighted(speed: Velocity): Velocity
-
-  def polite(speed: Velocity): Velocity
 
   def jamsHater(speed: Velocity, timeToReact: reactionTime): Velocity
 
