@@ -5,9 +5,9 @@ import Model.{Acceleration, Position, Route, Velocity}
 
 object Simulation extends App {
 
-  val agent1 =   Vehicule(Velocity(1, 0),120d, Position(0, 0),Acceleration(0.0,0.0), reactionTime = 0)
-  val agent2 =   Vehicule(Velocity(1, 0),150d, Position(10, 0),Acceleration(0.0,0.0), Some(agent1), reactionTime = 0)
-  val agent3 =   Vehicule(Velocity(1, 0), 90, Position(20, 0),Acceleration(0.0,0.0), Some(agent2), reactionTime = 0)
+  val agent1 =   Vehicule(Velocity(1, 0),120f, Position(0, 0),Acceleration(0.0f,0.0f))
+  val agent2 =   Vehicule(Velocity(1, 0),150f, Position(10, 0),Acceleration(0.0f,0.0f), Some(agent1) )
+  val agent3 =   Vehicule(Velocity(1, 0), 90f, Position(20, 0),Acceleration(0.0f,0.0f), Some(agent2))
 
   def runSimulation(): Unit = {
     agent3.moveNext()

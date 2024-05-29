@@ -15,3 +15,12 @@ case class Velocity(var dx: Float, var dy: Float) {
 
 }
 
+case class reactionDistance( var distanceToReact: Float )  {
+  require(distanceToReact >= 0)
+  distanceToReact
+}
+
+case class reactionTime( var timeToReact : Float)  {
+  require(timeToReact < 1.0)
+  timeToReact
+}

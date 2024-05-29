@@ -1,14 +1,19 @@
 package Model
 
 
+import Model.Behaviour.OverallBehaviour
 import Model.{Acceleration, Position, Velocity}
 
 case class Vehicule(currentvitesse: Velocity,
                     maxVitesse : Float,
                     var position: Position,
                     acceleration:Acceleration,
-                    next: Option[Vehicule] = None,
-                    reactionTime: Double) {
+                    next: Option[Vehicule] = None) /*extends OverallBehaviour
+                    */{
+
+  //override def enteringJams(): Unit = ???
+
+  //override def exitingJams(timeToReact: Float): Float = ???
 
   override def toString: String = {
     s"Current velocity = ${currentvitesse.vitesseTotal}\n"
