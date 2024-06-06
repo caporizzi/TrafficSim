@@ -2,26 +2,42 @@ package Model
 import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.graphics.Color
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartPanel
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
+import javax.swing.JFrame
 
+class SimulationGUI extends PortableApplication(1980,1080) {
 
-class SimulationGUI extends PortableApplication {
-
-  var car_width = 15f //
+  var car_width = 10f //
   var car_height = 25f // arabinin uzunlugu
-  var safeDistance = 30f // Araclar arasindaki mesafe bundan az olursa trafic baslayacak
+  var safeDistance = 40f // Araclar arasindaki mesafe bundan az olursa trafic baslayacak
   var traficDensity = 0.0f
-
+  var minDistance = 71f
   // fix bir deger - araclarin ne kadar hizli gidecegi ekranda bu degere gore degisiyor cunku currenVitesse * deltaTime , her deltaTime surede o kadar yol alacak o anlamda
-  var deltaTime = 01.1f
+  var deltaTime = 1f
 
   /*
   You have to put the cars in lanes, posy = 305 to be in the left lane, posy = 270 to be in the right lane.
    */
-  val car1 = Vehicule(Velocity(0, 0), 20f, Position(45f, 305f), new Acceleration(0.0f, 0.0f)) // Sol serit
-  val car2 = Vehicule(Velocity(2, 0), 20f, Position(10f, 270f), new Acceleration(1.0f, 0.0f) /*Some(car1)*/) // arkadaki arac
-  val car3 = Vehicule(Velocity(2, 0), 10f, Position(165f, 270f), new Acceleration(0.0f, 0.0f) /* Some(car2)*/) // ortadaki arac
-  val car4 = Vehicule(Velocity(2, 0), 10f, Position(198f, 270f), new Acceleration(0.0f, 0.0f) /* Some(car2)*/) // en ondeki arac
-  var cars = Array(car1, car2, car3,car4)
+  val car1 = Vehicule(Velocity(1f, 0), 20f, Position(1f, 270f)) // Car following car1
+  val car2 = Vehicule(Velocity(1f, 0), 20f, Position(40f, 270f)) // Car following car5
+  val car3 = Vehicule(Velocity(1f, 0), 20f, Position(80f, 270f)) // Car following car4
+  val car4 = Vehicule(Velocity(1f, 0), 20f, Position(120f, 270f)) // Car following car3
+  val car5 = Vehicule(Velocity(1f, 0), 20f, Position(160f, 270f)) // Lead car, no car in front
+  val car6 = Vehicule(Velocity(1f, 0), 20f, Position(200f, 270f)) // Lead car, no car in front
+  val car7 = Vehicule(Velocity(1f, 0), 20f, Position(240f, 270f)) // Lead car, no car in front
+  val car8 = Vehicule(Velocity(1f, 0), 20f, Position(280f, 270f)) // Lead car, no car in front
+  //val car9 = Vehicule(Velocity(1f, 0), 20f, Position(320f, 270f)) // Lead car, no car in front
+  //val car10 = Vehicule(Velocity(1f, 0), 20f, Position(360f, 270f)) // Lead car, no car in front
+  //val car11 = Vehicule(Velocity(1f, 0), 20f, Position(45f, 270f)) // Lead car, no car in front
+  //val car12 = Vehicule(Velocity(1f, 0), 20f, Position(45f, 270f))
+
+
+
+  var cars = Array(car1, car2, car3, car4, car5, car6, car7, car8)
 
   override def onInit(): Unit = {
     setTitle("Traffic Simulation")
@@ -30,8 +46,10 @@ class SimulationGUI extends PortableApplication {
   // Draw Road Serit genisligi 325 - 250 = 75 / 2 = 37.5
   // Right lane between 250-287, left lane 287 - 325
   def drawRoad(g: GdxGraphics): Unit = {
-    g.drawLine(0f, 250, 500f, 250, Color.BLUE) // Bottom Line - Alt Cizgi
-    val dashLength = 10f
+    val windowHeight = getWindowHeight
+    val windowWidth = getWindowWidth
+
+    val dashLength = getWindowWidth
     val spaceLength = 30f
     val startY = 287f
     var xPos = 0f
@@ -39,7 +57,7 @@ class SimulationGUI extends PortableApplication {
       g.drawLine(xPos, startY, xPos + dashLength, startY, Color.WHITE) // - - -
       xPos += dashLength + spaceLength
     }
-    g.drawLine(0f, 325, 500f, 325, Color.WHITE) // Top Line - Ust cizgi
+
   }
 
   def drawCircleRoad(g: GdxGraphics): Unit = {
@@ -49,39 +67,83 @@ class SimulationGUI extends PortableApplication {
 
   // Draw and Moves the Cars
   def drawCars(cars: Array[Vehicule], g: GdxGraphics): Unit = {
-    for (car <- cars) {
-      g.drawFilledRectangle(car.position.x, car.position.y, car_width, car_height, 90f, Color.CHARTREUSE)
+
+    val colors = Array(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CORAL, Color.BROWN, Color.CYAN, Color.GOLD)
+
+    for (i <- cars.indices) {
+      val car = cars(i)
+      g.drawFilledRectangle(car.position.x, car.position.y, car_width, car_height, 90f, colors(i)) // Assign color based on index
     }
 
-    for(i<- 0 until(cars.length)){
-      cars(i).move(deltaTime)
-      if (cars(i).position.x > getWindowWidth) {
-        cars(i).position.x = -car_width
+    for (i <- cars.indices) {
+      val car = cars(i)
+      car.move(deltaTime)
+      if (car.position.x > getWindowWidth) {
+        car.position.x = -car_width
       }
+      println(s"Car $i - Position: ${car.position.x}, ${car.position.y}, Velocity: ${car.currentvitesse.dx}")
     }
-      println(s"Ilk aracin hizi = ${cars(0).currentvitesse.dx} ve konumu ${cars(0).position.x}")
-      println(s"Ikinci aracin aracin hizi = ${cars(1).currentvitesse.dx}  ve konumu ${cars(1).position.x}")
-      println(s"Ucuncu aracin aracin hizi = ${cars(2).currentvitesse.dx} ve konumu ${cars(2).position.x}")
-      println(s"Dorduncu aracin aracin hizi = ${cars(3).currentvitesse.dx} ve konumu ${cars(3).position.x}")
+
 
   } // End of the drawCars method
+  //Graphs
 
+  val velocitySeries: Array[XYSeries] = Array.tabulate(cars.length)(i => new XYSeries(s"Car $i Velocity"))
+
+  // Create the chart dataset
+  val dataset = new XYSeriesCollection()
+  velocitySeries.foreach(dataset.addSeries)
+
+  // Create the chart
+  val chart = ChartFactory.createXYLineChart(
+    "Car Velocity vs. Time", // Chart title
+    "Time", // X-axis label
+    "Velocity", // Y-axis label
+    dataset, // Dataset
+    PlotOrientation.VERTICAL,
+    true, // Show legend
+    true,
+    false
+  )
+
+  // Create GUI components
+  val chartPanel = new ChartPanel(chart)
+  val frame = new JFrame("Car Velocity Graph")
+
+  frame.getContentPane().add(chartPanel)
+  frame.pack()
+  frame.setVisible(true)
+  var timeElapsed = 0
   override def onGraphicRender(g: GdxGraphics): Unit = {
       g.clear()
       drawRoad(g)
       drawCars(cars, g)
-
-    //TODO :: BURADA DETECT OLURSA YAVASLAMASI LAZIM O OLMADI BI TURLU ..
-      for (i <- 1 until cars.length) { // Start from 1 to avoid index out of bounds
-        if (cars(i).position.distance(cars(i).position, cars(i - 1).position) > safeDistance) {
-          cars(i).accelerate()
-        } else {
-          cars(i).currentvitesse = Velocity(2f,0f)
-          //cars(i).updateVelocity(deltaTime, cars, safeDistance, g)
-
-        }
+    timeElapsed = (timeElapsed+ deltaTime).toInt
+    for (car <- cars) {
+      car.updateVelocity(deltaTime, cars, safeDistance,minDistance, g)
+      car.move(deltaTime)
+      if (car.position.x > getWindowWidth) {
+        car.position.x = -car_width
       }
-
+      println(s"Car - Position: ${car.position.x}, ${car.position.y}, Velocity: ${car.currentvitesse.dx}")
+    }
+    var i = 1 // Initialize index variable outside the loop
+    while (i < cars.length) {
+      val distance = cars(i).distance(cars(i - 1).position)
+      println(s"Distance between car $i and car ${i - 1}: $distance")
+      if (distance > safeDistance) {
+        println(s"Car $i is accelerating")
+        cars(i).accelerate()
+      } else {
+        println(s"Car $i is decelerating")
+        cars(i).currentvitesse = Velocity(2f, 0f)
+      }
+      i += 1 // Increment index variable
+    }
+    for (i <- cars.indices) {
+      // Update velocity series
+      velocitySeries(i).add(timeElapsed, cars(i).currentvitesse.dx) // Replace /*xValue*/ with appropriate value
+    }
   }// End of the onGraphicsRender method
 }// End of the class
 

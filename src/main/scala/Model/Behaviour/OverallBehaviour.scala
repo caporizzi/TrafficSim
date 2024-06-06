@@ -6,7 +6,7 @@ trait OverallBehaviour {
 
   def enteringJams( ) = ???
 
-  def exitingJams( timeToReact: Float) : Float = ???
+  def exitingJams( timeToReact: reactionTime ) : Float = ???
 
   def intoJams() = ???
 }

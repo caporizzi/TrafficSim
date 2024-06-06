@@ -12,9 +12,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="sbt: scala-sdk-2.13.14" level="project" />
+    <orderEntry type="library" name="sbt: org.jfree:jfreechart:1.5.3:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.14:jar" level="project" />
-    <orderEntry type="library" name="accordion-1.2.0-jar-with-dependencies" level="project" />
-    <orderEntry type="library" name="gdx2d-desktop-1.2.2" level="project" />
-    <orderEntry type="library" name="gdx2d-desktop-1.2.2-sources" level="project" />
+    <orderEntry type="library" name="accordion-1.2.0-jar-with-dependencies (2)" level="project" />
+    <orderEntry type="library" name="gdx2d-desktop-1.2.2 (2)" level="project" />
+    <orderEntry type="library" name="gdx2d-desktop-1.2.2-sources (2)" level="project" />
   </component>
 </module>
