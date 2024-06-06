@@ -1,104 +1,93 @@
 package Model
-
-import Model.Behaviour.StressedBehaviour
 import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.graphics.Color
-import jdk.internal.agent.resources.agent
+
 
 class SimulationGUI extends PortableApplication {
+
+  var car_width = 15f //
+  var car_height = 25f // arabinin uzunlugu
+  var safeDistance = 30f // Araclar arasindaki mesafe bundan az olursa trafic baslayacak
+  var traficDensity = 0.0f
+
+  // fix bir deger - araclarin ne kadar hizli gidecegi ekranda bu degere gore degisiyor cunku currenVitesse * deltaTime , her deltaTime surede o kadar yol alacak o anlamda
+  var deltaTime = 01.1f
+
+  /*
+  You have to put the cars in lanes, posy = 305 to be in the left lane, posy = 270 to be in the right lane.
+   */
+  val car1 = Vehicule(Velocity(0, 0), 20f, Position(45f, 305f), new Acceleration(0.0f, 0.0f)) // Sol serit
+  val car2 = Vehicule(Velocity(2, 0), 20f, Position(10f, 270f), new Acceleration(1.0f, 0.0f) /*Some(car1)*/) // arkadaki arac
+  val car3 = Vehicule(Velocity(2, 0), 10f, Position(165f, 270f), new Acceleration(0.0f, 0.0f) /* Some(car2)*/) // ortadaki arac
+  val car4 = Vehicule(Velocity(2, 0), 10f, Position(198f, 270f), new Acceleration(0.0f, 0.0f) /* Some(car2)*/) // en ondeki arac
+  var cars = Array(car1, car2, car3,car4)
+
   override def onInit(): Unit = {
     setTitle("Traffic Simulation")
   }
-  // Draw Road
+
+  // Draw Road Serit genisligi 325 - 250 = 75 / 2 = 37.5
+  // Right lane between 250-287, left lane 287 - 325
   def drawRoad(g: GdxGraphics): Unit = {
-    g.drawLine(0f, 250, 500f, 250, Color.WHITE)
+    g.drawLine(0f, 250, 500f, 250, Color.BLUE) // Bottom Line - Alt Cizgi
     val dashLength = 10f
-    val spaceLength = 10f
+    val spaceLength = 30f
     val startY = 287f
     var xPos = 0f
-
     while (xPos < 500f) {
-      g.drawLine(xPos, startY, xPos + dashLength, startY, Color.WHITE)
+      g.drawLine(xPos, startY, xPos + dashLength, startY, Color.WHITE) // - - -
       xPos += dashLength + spaceLength
     }
-    g.drawLine(0f, 325, 500f, 325, Color.WHITE)
+    g.drawLine(0f, 325, 500f, 325, Color.WHITE) // Top Line - Ust cizgi
   }
 
-  def drawCircleRoad(g: GdxGraphics) : Unit = {
-       g.drawCircle(250, 250, 150, Color.WHITE)
-       g.drawCircle(250, 250, 225, Color.WHITE)
+  def drawCircleRoad(g: GdxGraphics): Unit = {
+    g.drawCircle(250, 250, 150, Color.WHITE)
+    g.drawCircle(250, 250, 225, Color.WHITE)
   }
 
-  // Create the position and car
-  /*
-  All of car will start the position x = 0(ama hepsinin arasinda  , y = sabit kalacak)
-   */
-  val agent1 = Vehicule(Velocity(10, 0), 120f, Position(45f, 287f), Acceleration(0.0f, 0.0f),reactionTime=0)
-  val agent2 = Vehicule(Velocity(15, 0), 150f, Position(75f, 287f), Acceleration(0.0f, 0.0f), Some(agent1),reactionTime=0)
-  //val agent3 = Vehicule(Velocity(1, 0), 90f, Position(165, 287f), Acceleration(0.0f, 0.0f), Some(agent2),reactionTime=0)
-  var cars : Array[Vehicule] = Array(agent1,agent2)//agent2,agent3
+  // Draw and Moves the Cars
+  def drawCars(cars: Array[Vehicule], g: GdxGraphics): Unit = {
+    for (car <- cars) {
+      g.drawFilledRectangle(car.position.x, car.position.y, car_width, car_height, 90f, Color.CHARTREUSE)
+    }
 
-  // Car dimensions to draw
-  var car_width = 15f
-  var car_height = 20f
-  var distanceNormal = 30f
+    for(i<- 0 until(cars.length)){
+      cars(i).move(deltaTime)
+      if (cars(i).position.x > getWindowWidth) {
+        cars(i).position.x = -car_width
+      }
+    }
+      println(s"Ilk aracin hizi = ${cars(0).currentvitesse.dx} ve konumu ${cars(0).position.x}")
+      println(s"Ikinci aracin aracin hizi = ${cars(1).currentvitesse.dx}  ve konumu ${cars(1).position.x}")
+      println(s"Ucuncu aracin aracin hizi = ${cars(2).currentvitesse.dx} ve konumu ${cars(2).position.x}")
+      println(s"Dorduncu aracin aracin hizi = ${cars(3).currentvitesse.dx} ve konumu ${cars(3).position.x}")
 
-  var sensorFront : Array[Float] = Array(agent1.position.x + car_width/2,agent2.position.x + car_width/2) // ,agent2.position.x,agent3.position.x
-  println(s"Baslangicta sensor konumu : ${sensorFront.mkString(" - ")}")
-  var detecteJam : Boolean = false
-
-
-  def setDistance(vehicule1: Vehicule, vehicule2: Vehicule) : Unit = {
-    var p1 : Position = vehicule1.position
-    var p2 : Position = vehicule2.position
-    var distanceActuel = p1.distance(p1,p2)
-
-    if(distanceActuel > distanceNormal)
-      println("FIFI")
-  }
-  var color : Array[Color] = Array(Color.WHITE,Color.CHARTREUSE)
+  } // End of the drawCars method
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    g.clear()
-    drawRoad(g)
-    //drawCircleRoad(g)
+      g.clear()
+      drawRoad(g)
+      drawCars(cars, g)
 
-    // Draw the Cars
-    for(car <- cars){
-      g.drawFilledRectangle(car.position.x, car.position.y, car_width, car_height, 91f, Color.CHARTREUSE)
-    }
+    //TODO :: BURADA DETECT OLURSA YAVASLAMASI LAZIM O OLMADI BI TURLU ..
+      for (i <- 1 until cars.length) { // Start from 1 to avoid index out of bounds
+        if (cars(i).position.distance(cars(i).position, cars(i - 1).position) > safeDistance) {
+          cars(i).accelerate()
+        } else {
+          cars(i).currentvitesse = Velocity(2f,0f)
+          //cars(i).updateVelocity(deltaTime, cars, safeDistance, g)
 
-    // Moves Car
-    if (agent1.position.x > getWindowWidth) {
-      agent1.position.x = -car_width
-    }
-    if (agent2.position.x > getWindowWidth)
-      agent2.position.x = -car_width
+        }
+      }
 
-/*
-    if (agent3.position.x > getWindowWidth)
-      agent3.position.x = -car_width
-      sensorFront(2) = agent2.position.x
-     */
-
-    // Araba 10 saniye boyunca hareket etsin saatte ki hizi saniye de 10 pixel x ekseninde
-    // Move cars with a vitesse ( pas constant )
-    for (i <- 0 until (1)) {
-      agent1.position.x += agent1.currentvitesse.dx
-      agent2.position.x += agent2.currentvitesse.dx
-      sensorFront(0) = agent1.position.x + car_width/2
-      sensorFront(1) = agent2.position.x + car_width/2
-
-      //agent2.position.x += 1.5f
-      //agent3.position.x += 0.5f
-    }
-
-  } // End of the onGraphicsRender method
+  }// End of the onGraphicsRender method
+}// End of the class
 
 
-}
 
-object aa extends App {
+
+object SimulationApp extends App {
   var a : SimulationGUI = new SimulationGUI()
 }
