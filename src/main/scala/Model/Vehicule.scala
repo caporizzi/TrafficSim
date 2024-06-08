@@ -2,147 +2,118 @@ package Model
 
 import ch.hevs.gdx2d.lib.GdxGraphics
 
-case class Vehicule(var currentvitesse: Velocity,
-                    var maxVitesse: Float = 0,
-                    var position: Position
-                    ) {
-  maxVitesse = currentvitesse.vitesseTotal * 4
-  var acceleration:Acceleration = Acceleration(0.01f, 0.0f)
+import scala.util.Random
 
-  var sameSpeedDuration: Float = 0
-  val sameSpeedThreshold: Float = 3
-  // Evet burada next'i silmeliyim cunku araclari birbirinden bagimsiz olmali gecebilmeli birbirini
-  // Detects whether there is a vehicle in front of the car by checking the distance in front of the car
-  def detectCar(cars: Array[Vehicule], threshold: Float, g: GdxGraphics): Boolean = {
-    for (otherCar <- cars) {
-      if (otherCar.position.y == this.position.y &&
-        otherCar.position.x > this.position.x &&
-        (otherCar.position.x - this.position.x) <= threshold) {
-        g.drawString(200f,50f,"Crash Detected-- !!")
-        return true
-      }
-    }
-    false
-  }
+case class Vehicule(
+                     currentvitesse: Velocity,
+                     maxVitesse: Float,
+                     position: Position
+                   )
 
-  /*
-  // TODO SIMDI detectCar true olunca serit degistirme secenegi ekle
-  // Araç öndeki bir aracı tespit ederse ve serit değiştirebilirse, bu metodu çağırır
-  def avoidTraffic(cars: Array[Vehicule], threshold: Float,g: GdxGraphics): Unit = {
-    if (detectCar(cars, threshold,g) && canChangeLane(cars)) {
-      changeLane()
-    }
-  }
+object Vehicule {
 
-  // Şerit değiştirme imkanını kontrol eder
-  def canChangeLane(cars: Array[Vehicule]): Boolean = {
-    !cars.exists(car =>
-      Math.abs(car.position.y - this.position.y) < 20 &&  // Yatay pozisyonlar yeterince yakın mı?
-        Math.abs(car.position.x - this.position.x) < 50    // Dikey pozisyonlar yeterince yakın mı?
+  def apply(currentvitesse: Velocity, position: Position): Vehicule = {
+    val maxVitesse = currentvitesse.dx * 10
+    Vehicule(
+      currentvitesse,
+      maxVitesse,
+      position
     )
   }
 
-  // Şerit değiştirme işlemi
-  def changeLane(): Unit = {
-    position.y = if (position.y == 270)
-      305
-    else 250
-  }
-   */
-
-  /*
-  def calculateTimeToReachMaxSpeed(initialSpeed: Float = currentvitesse.vitesseTotal,
-                                   maxSpeed: Float = maxVitesse,
-                                   acc: Float = acceleration.accelerationTotal.toFloat): Float = {
-    if (acc > 0) (maxSpeed - initialSpeed) / acc else 0f  // İvme 0'dan büyükse süreyi hesapla, değilse 0 dön.
+  def detectCar(v: Vehicule, cars: Array[Vehicule], threshold: Float, g: GdxGraphics): Boolean = {
+    cars.exists(otherCar =>
+      otherCar.position.y == v.position.y &&
+        otherCar.position.x > v.position.x &&
+        (otherCar.position.x - v.position.x) <= threshold
+    )
   }
 
+  def detectCarRadius(v: Vehicule, cars: Array[Vehicule], radius: Float, g: GdxGraphics): Boolean = {
+    cars.exists(otherCar =>
+      otherCar.position.distanceTo(v.position) <= radius && otherCar.position != v.position
+    )
+  }
 
-   */
-  /*
-    def updateVelocity(deltaTime: Float): Unit = {
-        currentvitesse.dx += acceleration.ax * deltaTime
-        currentvitesse.dx = Math.min(currentvitesse.dx, maxVitesse)
-    }
-   */
-
-  def updateVelocity(deltaTime: Float, cars: Array[Vehicule], threshold: Float, minDistance: Float, g: GdxGraphics): Unit = {
-    val updatingCondition = this.detectCar(cars, threshold, g)
-
-    // Check if there's no obstacle detected
-    if (!updatingCondition) {
-      currentvitesse.dx += acceleration.ax * deltaTime
-      currentvitesse.dx = Math.min(currentvitesse.dx, maxVitesse)
-      sameSpeedDuration = 0 // Reset the same speed duration
+  def updateVelocity(v: Vehicule, deltaTime: Float, cars: Array[Vehicule], threshold: Float, minDistance: Float, g: GdxGraphics): Vehicule = {
+    val updatingCondition = detectCar(v, cars, threshold, g)
+    val updatedSpeed = if (!updatingCondition) {
+      val newDx = math.min(v.currentvitesse.dx + 0.01f * deltaTime, v.maxVitesse)
+      v.copy(currentvitesse = v.currentvitesse.update(newDx))
     } else {
-      // If there's an obstacle, find the car in front
-      val carInFront = findCarInFront(cars)
-      carInFront match {
+      findCarInFront(v, cars) match {
         case Some(car) =>
           val speedOfCarInFront = car.currentvitesse.dx
-          // Check if the distance to the car in front is greater than minDistance
-          if ((distanceToCar(car)) >= minDistance) {
-            // If so, accelerate
-            accelerate()
+          if (distanceToCar(v, car) >= minDistance) {
+            accelerate(v)
           } else {
-            // Otherwise, decelerate based on the speed of the car in front
-            decelerate(speedOfCarInFront)
+            decelerate(v, speedOfCarInFront)
           }
         case None =>
-          // No car in front, maintain current speed or decelerate further if needed
-          accelerate() // or set a minimum speed
+          accelerate(v)
       }
     }
+    updatedSpeed
+  }
 
-    // Check if the current velocity is the same as the previous one
-    if (cars.forall(_.currentvitesse.dx == currentvitesse.dx)) {
-      sameSpeedDuration += deltaTime // Increment the same speed duration
-      // If the same speed duration exceeds the threshold, decelerate
-      if (sameSpeedDuration >= sameSpeedThreshold) {
-        decelerate(currentvitesse.dx*0.8f) // Decelerate by reducing speed by 1 unit
-      }
+  def updateVelocityRadius(v: Vehicule, deltaTime: Float, cars: Array[Vehicule], radius: Float, minDistance: Float, g: GdxGraphics): Vehicule = {
+    val updatingCondition = detectCarRadius(v, cars, radius, g)
+    val updatedSpeed = if (!updatingCondition) {
+      val newDx = math.min(v.currentvitesse.dx + 0.01f * deltaTime, v.maxVitesse)
+      v.copy(currentvitesse = v.currentvitesse.update(newDx))
     } else {
-      sameSpeedDuration = 0 // Reset the same speed duration if speeds are different
+      findCarInFrontRadius(v, cars, radius) match {
+        case Some(car) =>
+          val speedOfCarInFront = car.currentvitesse.dx
+          if (v.position.distanceTo(car.position) >= minDistance) {
+            accelerate(v)
+          } else {
+            decelerate(v, speedOfCarInFront)
+          }
+        case None =>
+          accelerate(v)
+      }
     }
+    updatedSpeed
   }
 
-
-  def distanceToCar(otherCar: Vehicule): Float = {
-    // Calculate the distance between this car and the other car
-    distance(otherCar.position)
-  }
-  def findCarInFront(cars: Array[Vehicule]): Option[Vehicule] = {
-    val sortedCars = cars.sortBy(_.position.x) // Sort cars by their x-coordinate
-    val index = sortedCars.indexWhere(_.position.x > position.x) // Find the index of the first car in front
-    if (index != -1) Some(sortedCars(index)) else None
+  def distanceToCar(v: Vehicule, otherCar: Vehicule): Float = {
+    distance(v.position, otherCar.position)
   }
 
-
-  def move(deltaTime: Float): Unit = {
-    position.x += currentvitesse.dx * deltaTime
-  }
-/*
-  def move(): Unit = {
-    position = position.move(currentvitesse.dx, currentvitesse.dy)
+  def findCarInFrontRadius(v: Vehicule, cars: Array[Vehicule], radius: Float): Option[Vehicule] = {
+    cars.filter(_.position.distanceTo(v.position) <= radius).sortBy(_.position.x).headOption
   }
 
- */
-
-  def accelerate(): Unit = {
-    if (acceleration.ax > 0 && currentvitesse.dx < maxVitesse) {
-      currentvitesse.dx += acceleration.ax
-    }
+  def findCarInFront(v: Vehicule, cars: Array[Vehicule]): Option[Vehicule] = {
+    cars.filter(_.position.x > v.position.x).sortBy(_.position.x).headOption
   }
 
-  def decelerate(speedOfCarInFront: Float): Unit = {
-    // Reduce velocity to the speed of the car in front
-    if (currentvitesse.dx > speedOfCarInFront) {
-      currentvitesse.dx = speedOfCarInFront
-    }
+  def accelerate(v: Vehicule): Vehicule = {
+    if (v.currentvitesse.dx < v.maxVitesse) {
+      v.copy(currentvitesse = v.currentvitesse.update(v.currentvitesse.dx + 0.01f))
+    } else v
   }
 
-  def distance(other: Position): Float = {
-    Math.sqrt(Math.pow(position.x - other.x, 2) + Math.pow(position.y - other.y, 2)).toFloat
+  def decelerate(v: Vehicule, speedOfCarInFront: Float): Vehicule = {
+    if (v.currentvitesse.dx > speedOfCarInFront) {
+      v.copy(currentvitesse = v.currentvitesse.update(speedOfCarInFront))
+    } else v
+  }
+
+  def distance(pos1: Position, pos2: Position): Float = {
+    math.sqrt(math.pow(pos1.x - pos2.x, 2) + math.pow(pos1.y - pos2.y, 2)).toFloat
+  }
+
+  def move(v: Vehicule, deltaTime: Float): Vehicule = {
+    v.copy(position = v.position.move(v.currentvitesse.dx * deltaTime, v.currentvitesse.dy * deltaTime))
+  }
+
+  def moveOnLemniscate(v: Vehicule, deltaTime: Float, a: Float): Vehicule = {
+    val t = v.position.x / a // Calculate parameter 't' based on the x-coordinate of the car
+    val newX = a * Math.cos(t).toFloat / (1 + Math.sin(t).toFloat * Math.sin(t).toFloat) // Calculate new x-coordinate on the lemniscate
+    val newY = a * Math.sin(t).toFloat * Math.cos(t).toFloat / (1 + Math.sin(t).toFloat * Math.sin(t).toFloat) // Calculate new y-coordinate on the lemniscate
+    v.copy(position = Position(newX, newY)) // Update the position of the car
   }
 
 }
