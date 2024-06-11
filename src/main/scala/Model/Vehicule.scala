@@ -2,6 +2,8 @@ package Model
 
 import ch.hevs.gdx2d.lib.GdxGraphics
 
+import scala.collection.mutable.ArrayBuffer
+
 case class Vehicule(var currentvitesse: Velocity,
                     var maxVitesse: Float = 0,
                     var position: Position
@@ -13,7 +15,7 @@ case class Vehicule(var currentvitesse: Velocity,
   val sameSpeedThreshold: Float = 3
   // Evet burada next'i silmeliyim cunku araclari birbirinden bagimsiz olmali gecebilmeli birbirini
   // Detects whether there is a vehicle in front of the car by checking the distance in front of the car
-  def detectCar(cars: Array[Vehicule], threshold: Float, g: GdxGraphics): Boolean = {
+  def detectCar(cars: ArrayBuffer[Vehicule], threshold: Float, g: GdxGraphics): Boolean = {
     for (otherCar <- cars) {
       if (otherCar.position.y == this.position.y &&
         otherCar.position.x > this.position.x &&
@@ -66,7 +68,7 @@ case class Vehicule(var currentvitesse: Velocity,
     }
    */
 
-  def updateVelocity(deltaTime: Float, cars: Array[Vehicule], threshold: Float, minDistance: Float, g: GdxGraphics): Unit = {
+  def updateVelocity(deltaTime: Float, cars: ArrayBuffer[Vehicule], threshold: Float, minDistance: Float, g: GdxGraphics): Unit = {
     val updatingCondition = this.detectCar(cars, threshold, g)
 
     // Check if there's no obstacle detected
@@ -111,7 +113,7 @@ case class Vehicule(var currentvitesse: Velocity,
     // Calculate the distance between this car and the other car
     distance(otherCar.position)
   }
-  def findCarInFront(cars: Array[Vehicule]): Option[Vehicule] = {
+  def findCarInFront(cars: ArrayBuffer[Vehicule]): Option[Vehicule] = {
     val sortedCars = cars.sortBy(_.position.x) // Sort cars by their x-coordinate
     val index = sortedCars.indexWhere(_.position.x > position.x) // Find the index of the first car in front
     if (index != -1) Some(sortedCars(index)) else None
