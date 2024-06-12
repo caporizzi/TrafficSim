@@ -23,10 +23,12 @@ class Sim2 extends PortableApplication(2500, 800) {
   val deltaTime = 0.5f
 
   //params to modify
+  val roadLength = 2500f
   val carWidth = 10f
   val numCars = 40
-  val windowWidth = 2500f
-  val density = numCars*carWidth /windowWidth
+
+  val density = numCars*carWidth /roadLength
+
   val minDistance = 30f
   val safeDistance = 100f
   //accelration and deceleration
