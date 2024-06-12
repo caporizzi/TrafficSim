@@ -28,13 +28,15 @@ object Vehicule {
         (otherCar.position.x - v.position.x) <= threshold
     )
   }
-
+  /*
   def detectCarRadius(v: Vehicule, cars: Array[Vehicule], radius: Float, g: GdxGraphics): Boolean = {
     cars.exists(otherCar =>
       otherCar.position.distanceTo(v.position) <= radius && otherCar.position != v.position
     )
   }
 
+
+   */
   def updateVelocity(v: Vehicule, deltaTime: Float, cars: Array[Vehicule], threshold: Float, minDistance: Float, g: GdxGraphics): Vehicule = {
     val updatingCondition = detectCar(v, cars, threshold, g)
     val updatedSpeed = if (!updatingCondition) {
@@ -55,7 +57,7 @@ object Vehicule {
     }
     updatedSpeed
   }
-
+  /*
   def updateVelocityRadius(v: Vehicule, deltaTime: Float, cars: Array[Vehicule], radius: Float, minDistance: Float, g: GdxGraphics): Vehicule = {
     val updatingCondition = detectCarRadius(v, cars, radius, g)
     val updatedSpeed = if (!updatingCondition) {
@@ -77,14 +79,18 @@ object Vehicule {
     updatedSpeed
   }
 
+
+   */
   def distanceToCar(v: Vehicule, otherCar: Vehicule): Float = {
     distance(v.position, otherCar.position)
   }
-
+  /*
   def findCarInFrontRadius(v: Vehicule, cars: Array[Vehicule], radius: Float): Option[Vehicule] = {
     cars.filter(_.position.distanceTo(v.position) <= radius).sortBy(_.position.x).headOption
   }
 
+
+   */
   def findCarInFront(v: Vehicule, cars: Array[Vehicule]): Option[Vehicule] = {
     cars.filter(_.position.x > v.position.x).sortBy(_.position.x).headOption
   }

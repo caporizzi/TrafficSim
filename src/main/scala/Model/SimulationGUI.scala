@@ -8,7 +8,7 @@ import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import javax.swing.JFrame
-
+/*
 class SimulationGUI extends PortableApplication(1980,1080) {
 
   var car_width = 10f //
@@ -153,3 +153,6 @@ class SimulationGUI extends PortableApplication(1980,1080) {
 object SimulationApp extends App {
   var a : SimulationGUI = new SimulationGUI()
 }
+
+
+ */
