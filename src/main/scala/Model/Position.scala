@@ -1,6 +1,5 @@
 package Model
 
-
 case class Position(var x: Float, var y: Float) {
   def move(dx: Float, dy: Float): Position = Position(x + dx, y + dy)
 
@@ -10,6 +9,4 @@ case class Position(var x: Float, var y: Float) {
         Math.pow(position1.y - position2.y, 2)
     )
   }
-
-
 }

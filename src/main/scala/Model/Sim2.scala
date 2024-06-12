@@ -17,28 +17,25 @@ class Sim2 extends PortableApplication(2500, 800) {
   object TrafficPhase extends Enumeration {
     val FreeFlow, Synchronized, Jammed = Value
   }
+
   var currentTrafficPhase: TrafficPhase.Value = TrafficPhase.FreeFlow
-
-  val carWidth = 10f
   val carHeight = 5f
-  val safeDistance = 100f
-  val minDistance = 30f
-  val deltaTime = 1f
+  val deltaTime = 0.5f
+
+  //params to modify
+  val carWidth = 10f
   val numCars = 40
+  val windowWidth = 2500f
+  val density = numCars*carWidth /windowWidth
+  val minDistance = 30f
+  val safeDistance = 100f
+  //accelration and deceleration
 
-  val density = numCars / 2500f
+
   var simulationTime = 0f
-  var totalTime = 300f
-  val r: Float = Random.between(4f, 7f)
-  val roadLength: Float = getWindowWidth
+  var totalTime = 1200f
   var isSimulationRunning: Boolean = true
-  //val car1 = Vehicule(Velocity(1.4f, 0), 20f, Position(1f, 270f)) // Car following car1
-  //val car2 = Vehicule(Velocity(1.3f, 0), 20f, Position(40f, 270f)) // Car following car5
   val cars : ArrayBuffer[Vehicule] = new ArrayBuffer[Vehicule]()
-  //cars.append(car1)
-  //cars.append(car2)
-
-  var velocityValue: Float = 15f//calculateAverageSpeed(cars).toFloat
 
   var accelerating = false
 
@@ -56,30 +53,16 @@ class Sim2 extends PortableApplication(2500, 800) {
     }
   }
 
-/*
-  def addNewCar(): Unit = {
-
-    if (cars.length < 325) {
-      val newCarPositionX = if (cars.nonEmpty) cars.map(_.position.x).max + 250f else 0f
-      val newCar = Vehicule(Velocity(velocityValue, 0), 20f, Position(newCarPositionX, 270f))
-      cars.append(newCar)
-    }
-  }
- */
-
-
   def addNewCar(numCars: Int, spacing: Float): Unit = {
     val totalSpeed_1 = cars.foldLeft(0.0)((acc, car) => acc + car.currentvitesse.dx)
     val avgSpeed = if (cars.nonEmpty) totalSpeed_1 / cars.length else 0
     var initialPosition = getWindowWidth - 50f
     for (_ <- 1 to numCars) {
-      val newCar = Vehicule(Velocity(avgSpeed.toFloat, 0f), maxVitesse = 10f, Position(initialPosition, 270f))
+      val newCar = Vehicule(Velocity(avgSpeed.toFloat, 0f), maxVitesse = 20f, Position(initialPosition, 270f))
       cars.append(newCar)
       initialPosition -= spacing
     }
   }
-
-
 
   def drawCars(cars: ArrayBuffer[Vehicule], g: GdxGraphics): Unit = {
     if (cars.nonEmpty) {
@@ -93,10 +76,10 @@ class Sim2 extends PortableApplication(2500, 800) {
           car.position.x = -carWidth
         }
       }
-
       calculateTrafficDensity(cars, 4, g, minDistance)
     }
   }
+
   def calculateTrafficDensity(cars: ArrayBuffer[Vehicule], numberRoadParts: Int, g: GdxGraphics, minDistance: Float): Unit = {
     val roadLength = getWindowWidth // Longueur totale de la route
     val partLength = roadLength / numberRoadParts // Longueur de chaque section
@@ -112,6 +95,7 @@ class Sim2 extends PortableApplication(2500, 800) {
     val averageDensityPerPart = totalDensity.toDouble / numberRoadParts
     g.drawString(50f, 550f + 20f * (numberRoadParts + 1),  s"Average vehicle density per piece= $averageDensityPerPart")
   }
+
   def updateTrafficPhase(): Unit = {
     val totalSpeed = cars.foldLeft(0.0)((acc, car) => acc + car.currentvitesse.dx)
     val avgSpeed = if (cars.nonEmpty) totalSpeed / cars.length else 0
@@ -220,27 +204,21 @@ class Sim2 extends PortableApplication(2500, 800) {
         car.currentvitesse.dx += 0.1f
       }
     }
-    /*
+    /* removed for implementation purpose, not relevant in this case
     if (keycode == bKeyCode) {
       addNewCar()
     }
-
-
      */
-    if(keycode == cKeyCode) {
-      if(cars.length > 3){
+    if (keycode == cKeyCode) {
+      if (cars.length > 3) {
         cars(0).decelerateConstant()
-        cars(cars.length / 2 ).decelerateConstant()
+        cars(cars.length / 2).decelerateConstant()
       }
-      cars(cars.length-1).decelerateConstant()
+      cars(cars.length - 1).decelerateConstant()
     }
   }
 
-  // Check traficc fluid or collison
-
-
-
-} // End of the Class
+}
 
 
 object SimulationApp2 extends App {

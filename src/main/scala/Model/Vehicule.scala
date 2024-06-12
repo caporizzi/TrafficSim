@@ -9,12 +9,11 @@ case class Vehicule(var currentvitesse: Velocity,
                     var position: Position
                     ) {
 
-  var acceleration:Acceleration = Acceleration(0.5f, 0.0f)
+  var acceleration:Acceleration = Acceleration(0.15f, 0.0f)
 
   var sameSpeedDuration: Float = 4
   val sameSpeedThreshold: Float = 10
-  // Evet burada next'i silmeliyim cunku araclari birbirinden bagimsiz olmali gecebilmeli birbirini
-  // Detects whether there is a vehicle in front of the car by checking the distance in front of the car
+
   def detectCar(cars: ArrayBuffer[Vehicule], threshold: Float, g: GdxGraphics): Boolean = {
     for (otherCar <- cars) {
       var numCarsinTraf : Int = 0
@@ -95,7 +94,7 @@ case class Vehicule(var currentvitesse: Velocity,
   def decelerate(speedOfCarInFront: Float): Unit = {
     // Reduce velocity to the speed of the car in front
     if (currentvitesse.dx > speedOfCarInFront) {
-      currentvitesse.dx = speedOfCarInFront
+      currentvitesse.dx = speedOfCarInFront*0.7f
     }
   }
 
@@ -108,5 +107,4 @@ case class Vehicule(var currentvitesse: Velocity,
   def distance(other: Position): Float = {
     Math.sqrt(Math.pow(position.x - other.x, 2) + Math.pow(position.y - other.y, 2)).toFloat
   }
-
 }
