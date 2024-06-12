@@ -12,9 +12,6 @@ import org.jfree.data.xy.XYSeriesCollection
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
-
-
-// augemente le lang route 10 20 km km basian dusen arac sayisi
 class Sim2 extends PortableApplication(2500, 800) {
 
   object TrafficPhase extends Enumeration {
