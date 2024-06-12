@@ -19,23 +19,30 @@ class Sim2 extends PortableApplication(2500, 800) {
   }
   var currentTrafficPhase: TrafficPhase.Value = TrafficPhase.FreeFlow
 
-  val carWidth = 5f
+  val carWidth = 10f
   val carHeight = 5f
-  val safeDistance = 10f
-  val minDistance = 5f
-  val deltaTime = 2f
-  val r: Float = Random.between(15f, 22f)
+  val safeDistance = 100f
+  val minDistance = 30f
+  val deltaTime = 1f
+  val numCars = 40
 
-
-  val car1 = Vehicule(Velocity(1.4f, 0), 20f, Position(1f, 270f)) // Car following car1
-  val car2 = Vehicule(Velocity(1.3f, 0), 20f, Position(40f, 270f)) // Car following car5
+  val density = numCars / 2500f
+  var simulationTime = 0f
+  var totalTime = 300f
+  val r: Float = Random.between(4f, 7f)
+  val roadLength: Float = getWindowWidth
+  var isSimulationRunning: Boolean = true
+  //val car1 = Vehicule(Velocity(1.4f, 0), 20f, Position(1f, 270f)) // Car following car1
+  //val car2 = Vehicule(Velocity(1.3f, 0), 20f, Position(40f, 270f)) // Car following car5
   val cars : ArrayBuffer[Vehicule] = new ArrayBuffer[Vehicule]()
-  cars.append(car1)
-  cars.append(car2)
+  //cars.append(car1)
+  //cars.append(car2)
 
   var velocityValue: Float = 15f//calculateAverageSpeed(cars).toFloat
 
   var accelerating = false
+
+
 
   def drawRoad(g: GdxGraphics): Unit = {
     val dashLength = getWindowWidth
@@ -59,17 +66,19 @@ class Sim2 extends PortableApplication(2500, 800) {
     }
   }
  */
-def addNewCar(): Unit = {
-  if (cars.length < 1525) {
-    val newCarPositionX = if (cars.nonEmpty) {
-      cars.head.position.x - carWidth - safeDistance // Baş aracın önüne güvenli mesafe ekleyerek yeni araç ekler
-    } else {
-      0f // Eğer araç yoksa başlangıç pozisyonu 0
+
+
+  def addNewCar(numCars: Int, spacing: Float): Unit = {
+    val totalSpeed_1 = cars.foldLeft(0.0)((acc, car) => acc + car.currentvitesse.dx)
+    val avgSpeed = if (cars.nonEmpty) totalSpeed_1 / cars.length else 0
+    var initialPosition = getWindowWidth - 50f
+    for (_ <- 1 to numCars) {
+      val newCar = Vehicule(Velocity(avgSpeed.toFloat, 0f), maxVitesse = 10f, Position(initialPosition, 270f))
+      cars.append(newCar)
+      initialPosition -= spacing
     }
-    val newCar = Vehicule(Velocity(r, 0), 20f, Position(newCarPositionX, 270f))
-    cars.prepend(newCar) // cars dizisine başa araç ekler
   }
-}
+
 
 
   def drawCars(cars: ArrayBuffer[Vehicule], g: GdxGraphics): Unit = {
@@ -124,7 +133,7 @@ def addNewCar(): Unit = {
   val phaseDataset = new XYSeriesCollection(phaseSeries)
   val phaseChart: JFreeChart = ChartFactory.createXYLineChart(
     "Traffic Phase Transition",
-    "Nombre de Voiture per 10 m.",
+    s"Simulation Time ${totalTime/100}[s], #Cars is ${numCars}, density is ${density} ",
     "Vitesse Moyen",
     phaseDataset,
     PlotOrientation.VERTICAL,
@@ -136,9 +145,9 @@ def addNewCar(): Unit = {
   frame.setVisible(true)
 
   // Araç sayısını hesapla ve serilere ekle
-  def updateChartData(time: Double, carCount: Int, averageSpeed: Double): Unit = {
-    phaseSeries.add(cars.length, calculateAverageSpeed(cars))
-    phaseChart.fireChartChanged() // Grafiği güncelle
+  def updateChartData(simulationTime: Float, averageSpeed: Double): Unit = {
+    phaseSeries.add(simulationTime, averageSpeed)
+    phaseChart.fireChartChanged()
   }
 
   def calculateAverageSpeed(cars: ArrayBuffer[Vehicule]): Double = {
@@ -154,34 +163,49 @@ def addNewCar(): Unit = {
 
   override def onInit(): Unit = {
     setTitle("Traffic Simulation")
+    addNewCar(numCars, getWindowWidth/numCars)
+    simulationTime = 0f
   }
 
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    g.clear()
-    drawRoad(g)
-    drawCars(cars, g)
-    updateChartData(0.1f,50, calculateAverageSpeed(cars))
-    updateTrafficPhase() // Update the traffic phase based on current conditions
-    g.drawString(50, 50, s"Entropy is = ${calculateEntropy(cars)}")
-    g.drawString(50, 70, s"Current Traffic Phase: $currentTrafficPhase")
 
-    cars.foreach { car =>
-      car.updateVelocity(deltaTime, cars, safeDistance, minDistance, g)
-      car.move(deltaTime)
-            if (car.position.x > getWindowWidth) {
-        car.position.x = -carWidth
-      }
-    }
-    if (accelerating) {
-      val allSpeedsEqual = cars.forall(_.currentvitesse.dx == cars.head.currentvitesse.dx)
-      if (allSpeedsEqual) {
-        accelerating = false
-      }
-    }
+    if (isSimulationRunning) {
+      g.clear()
+      drawRoad(g)
 
-    for( i <- 0 until  cars.length) {
-      println(s" $i .nci arabanin hizi : ${cars(i).currentvitesse.dx}")
+
+      drawCars(cars, g)
+      updateChartData(simulationTime, calculateAverageSpeed(cars))
+      updateTrafficPhase() // Update the traffic phase based on current conditions
+      g.drawString(50, 50, s"Entropy is = ${calculateEntropy(cars)}")
+      g.drawString(50, 70, s"Current Traffic Phase: $currentTrafficPhase")
+
+
+      simulationTime += deltaTime
+      // Check if simulation time is finished
+      if (simulationTime >= totalTime) {
+        // Pause the simulation
+        isSimulationRunning = false
+      }
+
+      cars.foreach { car =>
+        car.updateVelocity(deltaTime, cars, safeDistance, minDistance, g)
+        car.move(deltaTime)
+        if (car.position.x > getWindowWidth) {
+          car.position.x = -carWidth
+        }
+      }
+      if (accelerating) {
+        val allSpeedsEqual = cars.forall(_.currentvitesse.dx == cars.head.currentvitesse.dx)
+        if (allSpeedsEqual) {
+          accelerating = false
+        }
+      }
+
+      for (i <- 0 until cars.length) {
+        println(s" $i .nci arabanin hizi : ${cars(i).currentvitesse.dx}")
+      }
     }
   }
 
@@ -193,14 +217,16 @@ def addNewCar(): Unit = {
     if (keycode == aKeyCode) {
       accelerating = true
       cars.sortBy(_.currentvitesse.dx).foreach { car =>
-        car.currentvitesse.dx += 1.0f
+        car.currentvitesse.dx += 0.1f
       }
     }
-
+    /*
     if (keycode == bKeyCode) {
       addNewCar()
     }
 
+
+     */
     if(keycode == cKeyCode) {
       if(cars.length > 3){
         cars(0).decelerateConstant()

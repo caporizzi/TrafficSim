@@ -5,11 +5,11 @@ import ch.hevs.gdx2d.lib.GdxGraphics
 import scala.collection.mutable.ArrayBuffer
 
 case class Vehicule(var currentvitesse: Velocity,
-                    var maxVitesse: Float = 0,
+                    var maxVitesse: Float,
                     var position: Position
                     ) {
-  maxVitesse += currentvitesse.vitesseTotal * 3
-  var acceleration:Acceleration = Acceleration(0.2f, 0.0f)
+
+  var acceleration:Acceleration = Acceleration(0.5f, 0.0f)
 
   var sameSpeedDuration: Float = 4
   val sameSpeedThreshold: Float = 10
