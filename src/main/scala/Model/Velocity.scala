@@ -4,7 +4,3 @@ package Model
     require(dy >= 0)
     var vitesseTotal : Float = Math.sqrt(dx * dx + dy * dy).toFloat
  }
-
-case class Acceleration(var ax: Float, var ay: Float){
-  var accelerationTotal = Math.sqrt(ax*ax + ay*ay)
-}
