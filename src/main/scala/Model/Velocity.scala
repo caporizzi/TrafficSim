@@ -8,18 +8,14 @@ package Model
     def moveFrom(from: Position): Position = from.move(dx, dy)
   }
 
-
 case class reactionDistance( var distanceToReact: Float )  {
   require(distanceToReact >= 0)
   distanceToReact
 }
-
 case class reactionTime( var timeToReact : Float)  {
   require(timeToReact < 1.0)
   timeToReact
 }
-
-
 case class Acceleration(var ax: Float, var ay: Float){
   var accelerationTotal = Math.sqrt(ax*ax + ay*ay)
 }
